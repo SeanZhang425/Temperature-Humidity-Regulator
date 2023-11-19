@@ -311,7 +311,7 @@ int main(void)
       double tempSum = 0;
 	  double humSum = 0;
 
-	  for (int i = 0; i < 10; i++) {
+	  for (int i = 0; i < 5; i++) {
 		  ReadTempHum();
 
 		  HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 1);
@@ -327,11 +327,11 @@ int main(void)
 
 		  tempSum += temperature;
 		  humSum += humidity;
-		  HAL_Delay(30000);
+		  HAL_Delay(29000);
 	  }
 
-	  double tempAvg = tempSum / 10.0;
-	  double humAvg = humSum / 10.0;
+	  double tempAvg = tempSum / 5.0;
+	  double humAvg = humSum / 5.0;
 
 	  GPIO_PinState Button_State = 0;
 	  GPIO_PinState Prev_Button_State = 0;
