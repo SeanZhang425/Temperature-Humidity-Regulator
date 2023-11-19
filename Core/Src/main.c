@@ -42,7 +42,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t bits[5];
 
+double humidity;
+double temperature;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,27 +56,139 @@ static void MX_GPIO_Init(void);
 void PinMode_Out();
 void PinMode_In();
 
+int Read_Sensor();
+int ReadTempHum();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void PinMode_Out() {
- GPIO_InitTypeDef GPIO_InitStruct = {0};
- 
- GPIO_InitStruct.Pin = Sensor_Pin;
- GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
- GPIO_InitStruct.Pull = GPIO_NOPULL;
- GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
- HAL_GPIO_Init(Sensor_GPIO_Port, &GPIO_InitStruct);
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	
+	GPIO_InitStruct.Pin = Sensor_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(Sensor_GPIO_Port, &GPIO_InitStruct);
 }
 
 void PinMode_In() {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
-
+	
 	GPIO_InitStruct.Pin = Sensor_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(Sensor_GPIO_Port, &GPIO_InitStruct);
+}
+
+int ReadTempHum() {
+	// READ VALUES
+	int result = Read_Sensor();
+
+	bits[0] &= 0x3F;
+	bits[2] &= 0x3F;
+
+	// CONVERT AND STORE
+	humidity = bits[0];
+	temperature = bits[2];
+
+	// TEST CHECKSUM
+	uint8_t sum = bits[0] + bits[2];
+
+	if (bits[4] != sum)
+		return -1;
+
+	return result;
+}
+
+int Read_Sensor() {
+	// INIT BUFFERVAR TO RECEIVE DATA
+	uint8_t mask = 128;
+	uint8_t idx = 0;
+
+	uint8_t data = 0;
+	uint8_t state = 0;
+	uint8_t pstate = 0;
+	uint16_t zeroLoop = 400;
+	uint16_t delta = 0;
+
+	//leadingZeroBits = 40 - leadingZeroBits; // reverse counting...
+
+	// REQUEST SAMPLE
+	PinMode_Out();
+	HAL_GPIO_WritePin(Sensor_GPIO_Port, Sensor_Pin, 0); // T-be
+	HAL_Delay(18);
+	HAL_GPIO_WritePin(Sensor_GPIO_Port, Sensor_Pin, 1); // T-go
+	PinMode_In();
+
+	uint16_t loopCount = 400 * 2;  // 200uSec max
+
+	while (HAL_GPIO_ReadPin(Sensor_GPIO_Port, Sensor_Pin) != 0)
+		if (--loopCount == 0) return -3;
+
+	// GET ACKNOWLEDGE or TIMEOUT
+	loopCount = 400;
+
+	while (HAL_GPIO_ReadPin(Sensor_GPIO_Port, Sensor_Pin) == 0)  // T-rel
+		if (--loopCount == 0) return -4;
+
+	loopCount = 400;
+
+	while (HAL_GPIO_ReadPin(Sensor_GPIO_Port, Sensor_Pin) == 1)  // T-reh
+		if (--loopCount == 0) return -5;
+
+	loopCount = 400;
+
+	// READ THE OUTPUT - 40 BITS => 5 BYTES
+	for (uint8_t i = 40; i != 0;)
+	{
+		// WAIT FOR FALLING EDGE
+		state = HAL_GPIO_ReadPin(Sensor_GPIO_Port, Sensor_Pin);
+
+		if (state == 0 && pstate != 0)
+		{
+			if (i > 1)
+			{
+				uint16_t min;
+
+				if (zeroLoop < loopCount)
+					min = zeroLoop;
+				else
+					min = loopCount;
+
+				zeroLoop = min;
+				delta = (400 - zeroLoop) / 4;
+			}
+			else if (loopCount <= (zeroLoop - delta))
+				data |= mask;
+
+			mask >>= 1;
+
+			if (mask == 0) // next byte
+			{
+				mask = 128;
+				bits[idx++] = data;
+				data = 0;
+			}
+			// next bit
+			--i;
+
+			// reset timeout flag
+			loopCount = 400;
+		}
+
+		pstate = state;
+
+		// Check timeout
+		if (--loopCount == 0)
+			return -2;
+
+	}
+
+	PinMode_Out();
+	HAL_GPIO_WritePin(Sensor_GPIO_Port, Sensor_Pin, 1);
+
+	return 0;
 }
 /* USER CODE END 0 */
 
