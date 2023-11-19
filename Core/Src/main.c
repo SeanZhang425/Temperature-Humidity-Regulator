@@ -50,12 +50,31 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN PFP */
+void PinMode_Out();
+void PinMode_In();
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void PinMode_Out() {
+ GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 
+ GPIO_InitStruct.Pin = Sensor_Pin;
+ GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ GPIO_InitStruct.Pull = GPIO_NOPULL;
+ GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ HAL_GPIO_Init(Sensor_GPIO_Port, &GPIO_InitStruct);
+}
 
+void PinMode_In() {
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	GPIO_InitStruct.Pin = Sensor_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(Sensor_GPIO_Port, &GPIO_InitStruct);
+}
 /* USER CODE END 0 */
 
 /**
@@ -86,7 +105,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
+ 
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
