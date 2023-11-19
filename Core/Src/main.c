@@ -336,7 +336,7 @@ int main(void)
 	  GPIO_PinState Button_State = 0;
 	  GPIO_PinState Prev_Button_State = 0;
 
-	  while (1) {
+	  while (tempAvg > 32 || tempAvg < 1 || humAvg > 50 || humAvg < 30) {
 		  if (tempAvg > 32) {
 			  Over_Temp_LED();
 			  Over_Alarm_Buzzer();
