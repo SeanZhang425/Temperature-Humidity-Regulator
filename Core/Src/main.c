@@ -59,10 +59,12 @@ void PinMode_In();
 int Read_Sensor();
 int ReadTempHum();
 
-void Over_Temp_Alarm(void);
-void Under_Temp_Alarm(void);
-void Over_Hum_Alarm(void);
-void Under_Hum_Alarm(void);
+void Over_Temp_LED(void);
+void Under_Temp_LED(void);
+void Over_Hum_LED(void);
+void Under_Hum_LED(void);
+void Over_Alarm_Buzzer(void);
+void Under_Alarm_Buzzer(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -196,39 +198,43 @@ int Read_Sensor() {
 	return 0;
 }
 
-void Over_Temp_Alarm(void) {
-	HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 1);
-
-	for (int i = 0; i < 50; i++) {
-		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
-		HAL_Delay(1);
-		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
-		HAL_Delay(1);
+void Over_Temp_LED(void) {
+	for (int i = 0; i < 11; i++) {
+		HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 1);
+		HAL_Delay(40);
+		HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 0);
+		HAL_Delay(40);
 	}
-
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 0);
-	HAL_Delay(100);
 }
 
-void Under_Temp_Alarm(void) {
-	HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 1);
-
-	for (int i = 0; i < 50; i++) {
-		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
-		HAL_Delay(2);
-		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
-		HAL_Delay(2);
+void Under_Temp_LED(void) {
+	for (int i = 0; i < 11; i++) {
+		HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 1);
+		HAL_Delay(40);
+		HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 0);
+		HAL_Delay(40);
 	}
-
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 0);
-	HAL_Delay(100);
 }
 
-void Over_Hum_Alarm(void) {
-	HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 1);
+void Over_Hum_LED(void) {
+	for (int i = 0; i < 11; i++) {
+		HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 1);
+		HAL_Delay(40);
+		HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 0);
+		HAL_Delay(40);
+	}
+}
 
+void Under_Hum_LED(void) {
+	for (int i = 0; i < 11; i++) {
+		HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 1);
+		HAL_Delay(40);
+		HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 0);
+		HAL_Delay(40);
+	}
+}
+
+void Over_Alarm_Buzzer(void) {
 	for (int i = 0; i < 25; i++) {
 		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
 		HAL_Delay(1);
@@ -244,15 +250,9 @@ void Over_Hum_Alarm(void) {
 		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
 		HAL_Delay(1);
 	}
-
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 0);
-	HAL_Delay(100);
 }
 
-void Under_Hum_Alarm(void) {
-	HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 1);
-
+void Under_Alarm_Buzzer(void) {
 	for (int i = 0; i < 25; i++) {
 		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
 		HAL_Delay(2);
@@ -268,10 +268,6 @@ void Under_Hum_Alarm(void) {
 		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
 		HAL_Delay(2);
 	}
-
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 0);
-	HAL_Delay(100);
 }
 /* USER CODE END 0 */
 
@@ -319,8 +315,14 @@ int main(void)
 		  ReadTempHum();
 
 		  HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 1);
+		  HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 1);
+		  HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 1);
+		  HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 1);
 		  HAL_Delay(500);
 		  HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 0);
+		  HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 0);
+		  HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 0);
+		  HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 0);
 		  HAL_Delay(500);
 
 		  tempSum += temperature;
@@ -335,17 +337,26 @@ int main(void)
 	  GPIO_PinState Prev_Button_State = 0;
 
 	  while (1) {
-		  if (tempAvg > 32)
-			  Over_Temp_Alarm();
-		  else if (tempAvg < 1)
-			  Under_Temp_Alarm();
+		  if (tempAvg > 32) {
+			  Over_Temp_LED();
+			  Over_Alarm_Buzzer();
+		  }
+		  else if (tempAvg < 1) {
+			  Under_Temp_LED();
+			  Under_Alarm_Buzzer();
+		  }
 
-		  if (humAvg > 50)
-			  Over_Hum_Alarm();
-		  else if (humAvg < 30)
-			  Under_Hum_Alarm();
 
-          GPIO_PinState Button_Read = HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin);
+		  if (humAvg > 50) {
+			  Over_Hum_LED();
+			  Over_Alarm_Buzzer();
+		  }
+		  else if (humAvg < 30) {
+			  Under_Hum_LED();
+			  Under_Alarm_Buzzer();
+		  }
+
+		  GPIO_PinState Button_Read = HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin);
 
 		  if (Button_Read != Prev_Button_State) {
 			  Button_State = Button_Read;
