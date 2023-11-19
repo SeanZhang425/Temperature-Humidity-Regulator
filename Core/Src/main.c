@@ -58,6 +58,11 @@ void PinMode_In();
 
 int Read_Sensor();
 int ReadTempHum();
+
+void Over_Temp_Alarm(void);
+void Under_Temp_Alarm(void);
+void Over_Hum_Alarm(void);
+void Under_Hum_Alarm(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -189,6 +194,84 @@ int Read_Sensor() {
 	HAL_GPIO_WritePin(Sensor_GPIO_Port, Sensor_Pin, 1);
 
 	return 0;
+}
+
+void Over_Temp_Alarm(void) {
+	HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 1);
+
+	for (int i = 0; i < 50; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(1);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(1);
+	}
+
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(GreenTempLED_GPIO_Port, GreenTempLED_Pin, 0);
+	HAL_Delay(100);
+}
+
+void Under_Temp_Alarm(void) {
+	HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 1);
+
+	for (int i = 0; i < 50; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(2);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(2);
+	}
+
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(RedTempLED_GPIO_Port, RedTempLED_Pin, 0);
+	HAL_Delay(100);
+}
+
+void Over_Hum_Alarm(void) {
+	HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 1);
+
+	for (int i = 0; i < 25; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(1);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(1);
+	}
+
+	HAL_Delay(10);
+
+	for (int i = 0; i < 25; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(1);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(1);
+	}
+
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(GreenHumLED_GPIO_Port, GreenHumLED_Pin, 0);
+	HAL_Delay(100);
+}
+
+void Under_Hum_Alarm(void) {
+	HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 1);
+
+	for (int i = 0; i < 25; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(2);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(2);
+	}
+
+	HAL_Delay(10);
+
+	for (int i = 0; i < 25; i++) {
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 1);
+		HAL_Delay(2);
+		HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, 0);
+		HAL_Delay(2);
+	}
+
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(RedHumLED_GPIO_Port, RedHumLED_Pin, 0);
+	HAL_Delay(100);
 }
 /* USER CODE END 0 */
 
