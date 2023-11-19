@@ -344,6 +344,16 @@ int main(void)
 			  Over_Hum_Alarm();
 		  else if (humAvg < 30)
 			  Under_Hum_Alarm();
+
+          GPIO_PinState Button_Read = HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin);
+
+		  if (Button_Read != Prev_Button_State) {
+			  Button_State = Button_Read;
+			  Prev_Button_State = Button_Read;
+		  }
+
+		  if (Button_State)
+			  break;
 	  }
     /* USER CODE END WHILE */
 
