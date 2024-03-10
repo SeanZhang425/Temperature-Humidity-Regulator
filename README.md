@@ -14,6 +14,8 @@ Software:
 
 * C
 
+* STM32CubeIDE
+
 Hardware:
 
 * STM32 Nucleo-F401RE
