@@ -1,6 +1,6 @@
 ## About the Project
 
-I designed and implemented a temperature and humidity regulator for patients with chronic obstructive pulmonary disease (COPD) to minimize the occurrence of exasperated, life-threatening symptoms. Once turned on, the system performs the following functions:
+For my ECE 198 project, I designed and implemented a temperature and humidity regulator for patients with chronic obstructive pulmonary disease (COPD) to minimize the occurrence of exasperated, life-threatening symptoms. Once turned on, the system performs the following functions:
 
 * Passively measures the ambient temperature and relative humidity
 
